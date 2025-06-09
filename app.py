@@ -46,13 +46,30 @@ def index():
 
 @app.route('/health')
 def health_check():
-    """Simple health check endpoint"""
+    """Comprehensive health check endpoint"""
+    status = {
+        'db_login': False,
+        'tables_ok': False,
+        'status': 'ok'
+    }
+
     try:
-        # Execute a lightweight query to confirm database connectivity
+        # Confirm database connectivity and credentials
         db.session.execute('SELECT 1')
-        return jsonify({'status': 'ok'})
-    except Exception:
-        return jsonify({'status': 'error'}), 500
+        status['db_login'] = True
+    except Exception as e:
+        status.update({'status': 'error', 'error': f'DB login failed: {e}'})
+        return jsonify(status), 500
+
+    try:
+        # Ensure required tables exist or can be created
+        db.create_all()
+        status['tables_ok'] = True
+    except Exception as e:
+        status.update({'status': 'error', 'error': f'Table check failed: {e}'})
+        return jsonify(status), 500
+
+    return jsonify(status)
 
 @app.route('/checklist/new', methods=['POST'])
 def create_checklist():
