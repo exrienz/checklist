@@ -16,10 +16,6 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db = SQLAlchemy(app)
 
-# Ensure required tables exist when the application starts
-with app.app_context():
-    db.create_all()
-
 class Checklist(db.Model):
     __tablename__ = 'checklists'
     id = db.Column(db.String(32), primary_key=True)
@@ -36,6 +32,11 @@ class ChecklistItem(db.Model):
     completed = db.Column(db.Boolean, default=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+@app.before_first_request
+def create_tables():
+    """Create database tables if they do not exist."""
+    db.create_all()
 
 def generate_checklist_id():
     return secrets.token_urlsafe(16)
