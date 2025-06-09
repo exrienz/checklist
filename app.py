@@ -3,6 +3,7 @@ import secrets
 from datetime import datetime
 from flask import Flask, render_template, request, jsonify, redirect, url_for
 from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy import text
 from werkzeug.utils import escape
 
 app = Flask(__name__)
@@ -55,7 +56,7 @@ def health_check():
 
     try:
         # Confirm database connectivity and credentials
-        db.session.execute('SELECT 1')
+        db.session.execute(text('SELECT 1'))
         status['db_login'] = True
     except Exception as e:
         status.update({'status': 'error', 'error': f'DB login failed: {e}'})
