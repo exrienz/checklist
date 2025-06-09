@@ -52,6 +52,7 @@ A minimalist, containerized web application for creating and sharing checklists.
    ```bash
    docker-compose up --build
    ```
+   The application will automatically create the required database tables on startup.
 
 4. Access the application at `http://localhost:5000`
 
@@ -87,13 +88,14 @@ A minimalist, containerized web application for creating and sharing checklists.
 ├── requirements.txt       # Python dependencies
 ├── Dockerfile            # Container configuration
 ├── docker-compose.yml    # Multi-container setup
-├── init.sql             # Database initialization
 └── templates/           # HTML templates
     ├── index.html       # Landing page
     └── checklist.html   # Checklist view/edit page
 ```
 
 ### Database Schema
+
+These tables are created automatically when the Flask app starts.
 
 ```sql
 CREATE TABLE checklists (
