@@ -16,6 +16,10 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db = SQLAlchemy(app)
 
+# Ensure required tables exist when the application starts
+with app.app_context():
+    db.create_all()
+
 class Checklist(db.Model):
     __tablename__ = 'checklists'
     id = db.Column(db.String(32), primary_key=True)
@@ -128,7 +132,5 @@ def reset_checklist(checklist_id):
     
     return jsonify({'message': 'Checklist reset successfully'})
 
-if __name__ == '__main__':
-    with app.app_context():
-        db.create_all()
-    app.run(host='0.0.0.0', port=5000) 
+if __name__ == "__main__":
+    app.run(host="0.0.0.0", port=5000)
