@@ -13,6 +13,7 @@ A minimalist, containerized web application for creating and sharing checklists.
   - Edit checklist titles
   - Reset all items to unchecked state
   - Copy checklist link to clipboard
+  - Health check endpoint at `/health` to verify database connectivity
 - 🔒 **Security**:
   - Input sanitization to prevent XSS
   - Secure random URLs for checklists
