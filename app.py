@@ -40,6 +40,16 @@ def generate_checklist_id():
 def index():
     return render_template('index.html')
 
+@app.route('/health')
+def health_check():
+    """Simple health check endpoint"""
+    try:
+        # Execute a lightweight query to confirm database connectivity
+        db.session.execute('SELECT 1')
+        return jsonify({'status': 'ok'})
+    except Exception:
+        return jsonify({'status': 'error'}), 500
+
 @app.route('/checklist/new', methods=['POST'])
 def create_checklist():
     title = escape(request.form.get('title', '').strip())
