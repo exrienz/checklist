@@ -45,11 +45,6 @@
     </style>
 </head>
 <body>
-    <nav class="navbar navbar-light bg-light py-2 mb-3">
-        <div class="container">
-            <a class="navbar-brand" href="{{ url_for('index') }}">Checklist</a>
-        </div>
-    </nav>
     <div class="container content-container">
         <div class="card">
             <div class="card-body p-4">
@@ -237,5 +232,10 @@
             });
         }
     </script>
+    <footer class="bg-light text-center py-2 fixed-bottom">
+        <a href="{{ url_for('index') }}">Home</a>
+        <span class="mx-2">&bull;</span>
+        Vibe coded by Exrienz with <span style="color:red">&hearts;</span>
+    </footer>
 </body>
-</html> 
+</html>
