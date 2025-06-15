@@ -27,7 +27,13 @@ class Checklist(db.Model):
     title = db.Column(db.String(255), nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
-    items = db.relationship('ChecklistItem', backref='checklist', lazy=True, cascade='all, delete-orphan')
+    items = db.relationship(
+        'ChecklistItem',
+        backref='checklist',
+        cascade='all, delete-orphan',
+        lazy=True,
+        order_by=['ChecklistItem.completed', 'ChecklistItem.id']
+    )
 
 class ChecklistItem(db.Model):
     __tablename__ = 'checklist_items'
@@ -117,6 +123,21 @@ def add_item(checklist_id):
         'content': item.content,
         'completed': item.completed
     })
+
+@app.route('/checklist/<checklist_id>/items/<int:item_id>', methods=['PUT'])
+def update_item(checklist_id, item_id):
+    item = ChecklistItem.query.filter_by(
+        checklist_id=checklist_id,
+        id=item_id
+    ).first_or_404()
+
+    content = escape(request.json.get('content', '').strip())
+    if not content:
+        return jsonify({'error': 'Content is required'}), 400
+
+    item.content = content
+    db.session.commit()
+    return jsonify({'content': item.content})
 
 @app.route('/checklist/<checklist_id>/items/<int:item_id>', methods=['DELETE'])
 def delete_item(checklist_id, item_id):

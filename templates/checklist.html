@@ -79,11 +79,11 @@
                     <div class="checklist-item d-flex align-items-center p-2 mb-2 rounded {% if item.completed %}completed{% endif %}"
                          data-item-id="{{ item.id }}">
                         <div class="form-check me-3">
-                            <input class="form-check-input" 
-                                   type="checkbox" 
+                            <input class="form-check-input"
+                                   type="checkbox"
                                    {% if item.completed %}checked{% endif %}>
                         </div>
-                        <div class="item-content flex-grow-1">{{ item.content }}</div>
+                        <div class="item-content flex-grow-1" contenteditable="true" data-original-content="{{ item.content }}">{{ item.content }}</div>
                         <button class="btn btn-link text-danger delete-item p-0">
                             <i class="bi bi-trash"></i>
                         </button>
@@ -140,6 +140,7 @@
                 const item = await response.json();
                 addItemToDOM(item);
                 document.getElementById('newItemContent').value = '';
+                sortItems();
             } catch (error) {
                 console.error('Error adding item:', error);
             }
@@ -161,6 +162,7 @@
                 
                 const { completed } = await response.json();
                 item.classList.toggle('completed', completed);
+                sortItems();
             } catch (error) {
                 console.error('Error toggling item:', error);
                 e.target.checked = !e.target.checked;
@@ -182,6 +184,7 @@
                 if (!response.ok) throw new Error('Failed to delete item');
                 
                 item.remove();
+                sortItems();
             } catch (error) {
                 console.error('Error deleting item:', error);
             }
@@ -203,9 +206,61 @@
                     item.classList.remove('completed');
                     item.querySelector('.form-check-input').checked = false;
                 });
+                sortItems();
             } catch (error) {
                 console.error('Error resetting checklist:', error);
             }
+        }
+
+        // Edit item content
+        document.getElementById('checklistItems').addEventListener('blur', async function(e) {
+            if (!e.target.classList.contains('item-content')) return;
+
+            const itemDiv = e.target.closest('.checklist-item');
+            const itemId = itemDiv.dataset.itemId;
+            const content = e.target.textContent.trim();
+
+            if (!content) {
+                e.target.textContent = e.target.dataset.originalContent;
+                return;
+            }
+
+            try {
+                const response = await fetch(`/checklist/{{ checklist.id }}/items/${itemId}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ content })
+                });
+
+                if (!response.ok) throw new Error('Failed to update item');
+
+                const data = await response.json();
+                e.target.dataset.originalContent = data.content;
+            } catch (error) {
+                console.error('Error updating item:', error);
+                e.target.textContent = e.target.dataset.originalContent;
+            }
+        }, true);
+
+        // Prevent newline in editable items and submit on Enter
+        document.getElementById('checklistItems').addEventListener('keydown', function(e) {
+            if (e.target.classList.contains('item-content') && e.key === 'Enter') {
+                e.preventDefault();
+                e.target.blur();
+            }
+        });
+
+        function sortItems() {
+            const container = document.getElementById('checklistItems');
+            const items = Array.from(container.children);
+            items.sort((a, b) => {
+                const aComp = a.classList.contains('completed') ? 1 : 0;
+                const bComp = b.classList.contains('completed') ? 1 : 0;
+                if (aComp !== bComp) return aComp - bComp;
+                return parseInt(a.dataset.itemId) - parseInt(b.dataset.itemId);
+            });
+            container.innerHTML = '';
+            items.forEach(it => container.appendChild(it));
         }
 
         function addItemToDOM(item) {
@@ -214,7 +269,7 @@
                     <div class="form-check me-3">
                         <input class="form-check-input" type="checkbox">
                     </div>
-                    <div class="item-content flex-grow-1">${item.content}</div>
+                    <div class="item-content flex-grow-1" contenteditable="true" data-original-content="${item.content}">${item.content}</div>
                     <button class="btn btn-link text-danger delete-item p-0">
                         <i class="bi bi-trash"></i>
                     </button>
@@ -231,6 +286,9 @@
                 console.error('Failed to copy link:', err);
             });
         }
+
+        // Initial sort on page load
+        sortItems();
     </script>
     <footer class="bg-light text-center py-2 fixed-bottom">
         <a href="{{ url_for('index') }}">Home</a>
