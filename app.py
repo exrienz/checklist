@@ -32,7 +32,8 @@ class Checklist(db.Model):
         backref='checklist',
         cascade='all, delete-orphan',
         lazy=True,
-        order_by=['ChecklistItem.completed', 'ChecklistItem.id']
+        # Order items by completion status then ID
+        order_by=lambda: (ChecklistItem.completed, ChecklistItem.id)
     )
 
 class ChecklistItem(db.Model):
