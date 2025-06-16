@@ -2,7 +2,6 @@ import os
 import secrets
 from datetime import datetime
 from flask import Flask, render_template, request, jsonify, redirect, url_for
-import requests
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import text
 from werkzeug.utils import escape
@@ -52,12 +51,6 @@ def generate_checklist_id():
 @app.route('/')
 def index():
     return render_template('index.html')
-
-@app.route('/trending')
-def trending():
-    """Display trending vulnerabilities using the CIRCL API."""
-    api_key = os.getenv('VULN_API_KEY', '')
-    return render_template('trending.html', api_key=api_key)
 
 @app.route('/health')
 def health_check():

@@ -46,8 +46,6 @@ A minimalist, containerized web application for creating and sharing checklists.
    MYSQL_PASSWORD=your_secure_password
    MYSQL_DATABASE=checklist_db
    MYSQL_ROOT_PASSWORD=your_secure_root_password
-   # Optional: required for /trending page
-   VULN_API_KEY=your_circl_api_key
    ```
 
 3. Build and start the containers:
@@ -57,10 +55,6 @@ A minimalist, containerized web application for creating and sharing checklists.
    The application will automatically create the required database tables on startup.
 
 4. Access the application at `http://localhost:5000`
-
-### Optional: Trending Vulnerabilities
-
-To display trending vulnerability information from [vulnerability.circl.lu](https://vulnerability.circl.lu), set the environment variable `VULN_API_KEY` with your API key. A new page is available at `/trending` showing the data fetched from the API.
 
 ## Usage
 
