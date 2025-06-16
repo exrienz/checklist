@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trending Vulnerabilities</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container py-4">
+        <h1 class="mb-4">Trending Vulnerabilities</h1>
+        <div id="trend-loading" class="text-center">
+            <div class="spinner-border" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+        </div>
+        <ul class="list-group" id="trend-list" style="display:none"></ul>
+    </div>
+    <script>
+        async function loadTrend() {
+            const list = document.getElementById('trend-list');
+            const loading = document.getElementById('trend-loading');
+            try {
+                const response = await fetch('https://vulnerability.circl.lu/api/trend', {
+                    headers: {
+                        'Authorization': 'Bearer {{ api_key }}'
+                    }
+                });
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                const result = await response.json();
+                loading.style.display = 'none';
+                list.style.display = 'block';
+                if (Array.isArray(result)) {
+                    if (result.length === 0) {
+                        list.innerHTML = '<li class="list-group-item">No data available</li>';
+                    } else {
+                        result.forEach(item => {
+                            const li = document.createElement('li');
+                            li.className = 'list-group-item';
+                            li.textContent = item;
+                            list.appendChild(li);
+                        });
+                    }
+                } else {
+                    list.innerHTML = '<li class="list-group-item">Unexpected response</li>';
+                }
+            } catch (err) {
+                loading.style.display = 'none';
+                list.style.display = 'block';
+                list.innerHTML = '<li class="list-group-item text-danger">Error loading data</li>';
+                console.error(err);
+            }
+        }
+        document.addEventListener('DOMContentLoaded', loadTrend);
+    </script>
+</body>
+</html>
